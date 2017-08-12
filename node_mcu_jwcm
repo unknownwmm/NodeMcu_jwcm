@@ -1,0 +1,183 @@
+//WSDKWILLIAM
+
+#include <ESP8266WiFi.h>
+
+//Nome da sua rede Wifi
+const char* ssid = "xxxx";
+//Senha da rede
+const char* password = "xxxx";
+
+//IP do ESP (para voce acessar pelo browser - voce TEM que mudar este IP tambem)
+IPAddress ip(192, 168, 25, 50);
+
+//IP do roteador da sua rede wifi
+IPAddress gateway(192, 168, 25, 1);
+
+//Mascara de rede da sua rede wifi
+IPAddress subnet(255, 255, 255, 0);
+
+//Criando o servidor web na porta 80
+WiFiServer server(80);
+
+//Funcao que sera executada apenas ao ligar o ESP8266
+void setup() {
+  Serial.begin(115200);
+  delay(10);
+
+  // prepare GPIO
+
+  pinMode(16, OUTPUT);
+  digitalWrite(16, 1);
+  
+  pinMode(5, OUTPUT);
+  digitalWrite(5, 1);
+
+  pinMode(4, OUTPUT);
+  digitalWrite(4, 1);
+
+  
+  pinMode(0, OUTPUT);
+  digitalWrite(0, 1);
+  
+  pinMode(2, OUTPUT);
+  digitalWrite(2, 1);
+
+  pinMode(14, OUTPUT);
+  digitalWrite(14, 1);
+
+  pinMode(12, OUTPUT);
+  digitalWrite(12, 1);
+  
+  pinMode(13, OUTPUT);
+  digitalWrite(13, 1);
+
+ //Conectando a rede Wifi
+  WiFi.config(ip, gateway, subnet);
+  WiFi.begin(ssid, password);
+
+//Verificando se esta conectado,
+  //caso contrario, espera um pouco e verifica de novo.
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  // Start the server
+  server.begin();
+
+}
+
+//Funcao que sera executada indefinidamente enquanto o NodeMCU estiver ligado.
+void loop() {
+  //Verificando se o servidor esta pronto.
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
+  }
+//Verificando se o servidor recebeu alguma requisicao
+  while(!client.available()){
+    delay(1);
+  }
+  //Obtendo a requisicao vinda do browser
+  String req = client.readStringUntil('\r');
+    //Sugestao dada por Enrico Orlando
+  if(req == "GET /favicon.ico HTTP/1.1"){
+      req = client.readStringUntil('\r');
+  }
+  client.flush();
+
+//Iniciando o buffer que ira conter a pagina HTML que sera enviada para o browser.
+  String buf = "";
+
+  buf += "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML>\r\n";
+  buf += "<html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/>\r\n";
+  buf += "<title>ESP8266 Web Server</title>";
+  buf += "<style>.c{text-align: center;} div,input{padding:5px;font-size:1em;} input{width:80%;} body{text-align: center;font-family:verdana;} button{border:0;border-radius:0.3rem;background-color:#1d3b4c;color:#fff;line-height:1.4rem;font-size:1.2rem;width:50;} .q{float: right;width: 64px;text-align: right;}</style>";
+  buf += "</head>";
+  buf += "<h3>ESP8266 CASA - WILLIAM</h3>";
+  buf += "<p>GPIO1 <br/><br/><a href=\"?function=led1_on\"><button>DESLIGAR</button></a><br/><br/> <a href=\"?function=led1_off\"><button>LIGAR</button></a></p>";
+  buf += "<p>GPIO2 <br/><br/><a href=\"?function=led2_on\"><button>DESLIGAR</button></a><br/><br/> <a href=\"?function=led2_off\"><button>LIGAR</button></a></p>";
+  buf += "<p>GPIO3 <br/><br/><a href=\"?function=led3_on\"><button>DESLIGAR</button></a><br/><br/> <a href=\"?function=led3_off\"><button>LIGAR</button></a></p>";
+  buf += "<p>GPIO4 <br/><br/><a href=\"?function=led4_on\"><button>DESLIGAR</button></a><br/><br/> <a href=\"?function=led4_off\"><button>LIGAR</button></a></p>";
+  buf += "<p>GPIO5 <br/><br/><a href=\"?function=led5_on\"><button>DESLIGAR</button></a><br/><br/> <a href=\"?function=led5_off\"><button>LIGAR</button></a></p>";
+  buf += "<p>GPIO6 <br/><br/><a href=\"?function=led6_on\"><button>DESLIGAR</button></a><br/><br/> <a href=\"?function=led6_off\"><button>LIGAR</button></a></p>";
+  buf += "<p>GPIO7 <br/><br/><a href=\"?function=led7_on\"><button>DESLIGAR</button></a><br/><br/> <a href=\"?function=led7_off\"><button>LIGAR</button></a></p>";
+  buf += "<p>GPIO8 <br/><br/><a href=\"?function=led8_on\"><button>DESLIGAR</button></a><br/><br/><a href=\"?function=led8_off\"><button>LIGAR</button></a></p>";
+  buf += "<h4>WM - WILLIAM MOURA</h4>";
+  buf += "</html>\n";
+
+  //Enviando para o browser a 'pagina' criada.
+  client.print(buf);
+  client.flush();
+
+   //Analisando a requisicao recebida para decidir se liga ou desliga a lampada
+   if (req.indexOf("led1_on") != -1)
+   {
+    digitalWrite(16, 1);
+   }
+  else if (req.indexOf("led1_off") != -1)
+  {
+    digitalWrite(16, 0);
+   }
+  if (req.indexOf("led2_on") != -1)
+  {
+    digitalWrite(5, 1);
+  }
+  else if (req.indexOf("led2_off") != -1)
+  {
+    digitalWrite(5, 0);
+  }
+  if (req.indexOf("led3_on") != -1)
+  {
+    digitalWrite(4, 1);
+  }
+  else if (req.indexOf("led3_off") != -1)
+  {
+    digitalWrite(4, 0);
+  }
+  if (req.indexOf("led4_on") != -1)
+  {
+    digitalWrite(0, 1);
+  }
+  else if (req.indexOf("led4_off") != -1)
+  {
+    digitalWrite(0, 0);
+  }
+  if (req.indexOf("led5_on") != -1)
+  {
+    digitalWrite(2, 1);
+  }
+  if (req.indexOf("led5_off") != -1)
+  {
+    digitalWrite(2, 0);
+  }
+  if (req.indexOf("led6_on") != -1)
+  {
+    digitalWrite(14, 1);
+  }
+  else if (req.indexOf("led6_off") != -1)
+  {
+    digitalWrite(14, 0);
+  }
+  if (req.indexOf("led7_on") != -1)
+  {
+    digitalWrite(12, 1);
+  }
+  else if (req.indexOf("led7_off") != -1)
+  {
+    digitalWrite(12, 0);
+  }
+  if (req.indexOf("led8_on") != -1)
+  {
+    digitalWrite(13, 1);
+  }
+  else if (req.indexOf("led8_off") != -1)
+  {
+    digitalWrite(13, 0);
+  }
+  else {
+     //Requisicao invalida!
+    client.stop();
+  }
+
+}
