@@ -1,0 +1,207 @@
+/*
+    This sketch demonstrates how to set up a simple HTTP-like server.
+    The server will set a GPIO pin depending on the request
+      http://server_ip/gpio/0 will set the GPIO2 low,
+      http://server_ip/gpio/1 will set the GPIO2 high
+    server_ip is the IP address of the ESP8266 module, will be
+    printed to Serial when the module is connected.
+*/
+
+#include <ESP8266WiFi.h>
+
+#define led1 16
+#define led2 05
+#define led3 04
+#define led4 00
+#define led5 02
+#define led6 14
+#define led7 12
+#define led8 13
+#define ledT
+
+IPAddress ip(192, 168, 25, 150);
+IPAddress gateway(192, 168, 25, 1);
+IPAddress subnet(255, 255, 255, 0);
+IPAddress dns(192, 168, 25, 1);
+
+const char* ssid = "powerbox";
+const char* password = "denovotuquerasenha";
+
+// Create an instance of the server
+// specify the port to listen on as an argument
+WiFiServer server(80);
+
+void setup() {
+  Serial.begin(115200);
+
+  // prepare LED
+  pinMode(led1, OUTPUT);
+   digitalWrite(led1, 0);
+
+  pinMode(led2, OUTPUT);
+  digitalWrite(led2, 0);
+
+  pinMode(led3, OUTPUT);
+  digitalWrite(led3, 0);
+
+  pinMode(led4, OUTPUT);
+  digitalWrite(led4, 0);
+
+  pinMode(led5, OUTPUT);
+  digitalWrite(led5, 0);
+
+  pinMode(led6, OUTPUT);
+  digitalWrite(led6, 0);
+  
+  pinMode(led7, OUTPUT);
+  digitalWrite(led7, 0);
+
+  pinMode(led8, OUTPUT);
+  digitalWrite(led8, 0);
+
+  
+  // Connect to WiFi network
+  Serial.println();
+  Serial.println();
+  Serial.print(F("Connecting to "));
+  Serial.println(ssid);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.config(ip, dns, gateway, subnet);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(F("."));
+  }
+  Serial.println();
+  Serial.println(F("WiFi connected"));
+
+  // Start the server
+  server.begin();
+  Serial.println(F("Server started"));
+
+  // Print the IP address
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  // Check if a client has connected
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
+  }
+  Serial.println(F("new client"));
+
+  client.setTimeout(5000); // default is 1000
+
+  // Read the first line of the request
+  String req = client.readStringUntil('\r');
+  Serial.println(F("request: "));
+  client.flush();
+
+ 
+   if (req.indexOf(F("/led1")) != -1) {
+      digitalWrite(led1, !digitalRead(led1));
+   }
+   if (req.indexOf(F("/led2")) != -1) {
+      digitalWrite(led2, !digitalRead(led2));
+   }
+     if (req.indexOf(F("/led3")) != -1) {
+      digitalWrite(led3, !digitalRead(led3));
+   }
+     if (req.indexOf(F("/led4")) != -1) {
+      digitalWrite(led4, !digitalRead(led4));
+   }
+     if (req.indexOf(F("/led5")) != -1) {
+      digitalWrite(led5, !digitalRead(led5));
+   }
+     if (req.indexOf(F("/led6")) != -1) {
+      digitalWrite(led6, !digitalRead(led6));
+   }
+     if (req.indexOf(F("/led7")) != -1) {
+      digitalWrite(led7, !digitalRead(led7));
+   }
+     if (req.indexOf(F("/led8")) != -1) {
+      digitalWrite(led8, !digitalRead(led8));
+   }
+     if (req.indexOf(F("/ledT")) != -1) {
+      digitalWrite(led1, HIGH);
+      digitalWrite(led2, HIGH);
+      digitalWrite(led3, HIGH);
+      digitalWrite(led4, HIGH);
+      digitalWrite(led5, HIGH);
+      digitalWrite(led6, HIGH);
+      digitalWrite(led7, HIGH);
+      digitalWrite(led8, HIGH);
+   }
+
+   client.println(F("HTTP/1.1 200 OK"));
+   client.println("Content-Type: text/html");
+   client.println("");
+
+   if(digitalRead(led1)) {
+      client.print("led1Of");
+    } else{
+      client.print("led1On");
+      }
+      client.print(",");
+
+   if(digitalRead(led2)) {
+      client.print("led2Of");
+    } else{
+      client.print("led2On");
+      }
+      client.print(",");
+
+   if(digitalRead(led3)) {
+      client.print("led3Of");
+    } else{
+      client.print("led3On");
+      }
+      client.print(",");      
+
+
+   if(digitalRead(led4)) {
+      client.print("led4Of");
+    } else{
+      client.print("led4On");
+      }
+      client.print(",");
+
+   if(digitalRead(led5)) {
+      client.print("led5Of");
+    } else{
+      client.print("led5On");
+      }
+      client.print(",");
+
+   if(digitalRead(led6)) {
+      client.print("led6Of");
+    } else{
+      client.print("led6On");
+      }
+      client.print(",");
+
+
+   if(digitalRead(led7)) {
+      client.print("led7Of");
+    } else{
+      client.print("led7On");
+      }
+      client.print(",");
+
+
+   if(digitalRead(led8)) {
+      client.print("led8Of");
+    } else{
+      client.print("led8On");
+      }
+      client.print(",");
+
+
+  
+      
+delay(1);
+
+}
